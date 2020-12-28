@@ -16,6 +16,7 @@ import { TorusService } from '../../services/torus/torus.service';
 import { LookupService } from '../../services/lookup/lookup.service';
 import { TokenService } from '../../services/token/token.service';
 import { emitMicheline, assertMichelsonData } from '@taquito/michel-codec';
+import { AddressBookService, AddressBook, Contact } from '../../services/address-book/address-book.service';
 
 interface SendData {
   to: string;
@@ -56,6 +57,8 @@ export class SendComponent implements OnInit, OnChanges {
   torusLookupAddress = '';
   torusLookupId = '';
   torusTwitterId = '';
+
+  addressBook: AddressBook = {};
 
   modalOpen = false;
   advancedForm = false;
@@ -106,7 +109,8 @@ export class SendComponent implements OnInit, OnChanges {
     private messageService: MessageService,
     public torusService: TorusService,
     private lookupService: LookupService,
-    public tokenService: TokenService
+    public tokenService: TokenService,
+    public addressBookService: AddressBookService
   ) { }
 
   ngOnInit() {
@@ -190,6 +194,7 @@ export class SendComponent implements OnInit, OnChanges {
   /* Modal 2 */
   async openModal() {
     // hide body scrollbar
+    this.addressBook = this.addressBookService.getAddressBook();
     const scrollBarWidth = window.innerWidth - document.body.offsetWidth;
     document.body.style.marginRight = scrollBarWidth.toString();
     document.body.style.overflow = 'hidden';
@@ -859,11 +864,15 @@ export class SendComponent implements OnInit, OnChanges {
     } else if (this.toPkh) {
       this.torusPendingLookup = true;
       this.torusLookupId = this.toPkh;
-      const { pkh, twitterId } = await this.torusService.lookupPkh(this.torusVerifier, this.toPkh).catch(e => {
-        console.error(e);
-        this.formInvalid = e;
-        return '';
-      });
+      let ans = this.addressBookService.lookupPkh(this.torusVerifier, this.toPkh);
+      if (!ans) {
+        ans = await this.torusService.lookupPkh(this.torusVerifier, this.toPkh).catch(e => {
+          console.error(e);
+          this.formInvalid = e;
+          return '';
+        });
+      }
+      const { pkh, twitterId } = ans;
       this.torusPendingLookup = false;
       if (pkh) {
         this.torusLookupAddress = pkh;

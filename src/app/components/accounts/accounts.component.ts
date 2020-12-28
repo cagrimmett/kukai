@@ -5,6 +5,7 @@ import * as copy from 'copy-to-clipboard';
 import { TranslateService } from '@ngx-translate/core'; // Multiple instances created ?
 import { MessageService } from '../../services/message/message.service';
 import { CoordinatorService } from '../../services/coordinator/coordinator.service';
+import { AddressBookService } from '../../services/address-book/address-book.service';
 import {
   ImplicitAccount,
   OriginatedAccount,
@@ -25,7 +26,8 @@ export class AccountsComponent implements OnInit {
     private router: Router,
     private translate: TranslateService,
     private messageService: MessageService,
-    private coordinatorService: CoordinatorService
+    private coordinatorService: CoordinatorService,
+    private addressBookService: AddressBookService
   ) { }
 
   ngOnInit(): void {
@@ -52,7 +54,10 @@ export class AccountsComponent implements OnInit {
     this.wideAccounts = (window.innerWidth > 640);
   }
   formatAddress(account: Account) {
-    if (this.wideAccounts) {
+    const name = this.addressBookService.getName(account.address);
+    if (name) {
+      return name;
+    } else if (this.wideAccounts) {
       return account.address;
     } else {
       return account.shortAddress();

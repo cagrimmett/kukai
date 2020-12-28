@@ -24,7 +24,8 @@
       <tr *ngFor="let peer of beaconService.peers; index as i">
         <td>{{ peer.name }}</td>
         <td>{{ peer.relayServer }}</td>
-        <td (click)="beaconService.removePeer(i)"><img (click)="beaconService.removePeer(i)" src="../../../assets/img/cross.svg"></td>
+        <td (click)="beaconService.removePeer(i)"><img (click)="beaconService.removePeer(i)"
+            src="../../../assets/img/cross.svg"></td>
       </tr>
     </tbody>
   </table>
@@ -46,4 +47,52 @@
       </tr>
     </tbody>
   </table>
+  <H3>Address book</H3>
+  <div class="seperator"></div>
+  <table *ngIf="addressBook">
+    <!--<thead>
+      <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th><span></span></th>
+      </tr>
+    </thead>-->
+    <tbody>
+      <tr *ngFor="let contact of addressBook | keyvalue">
+        <td>
+          <ng-container *ngIf="contact.value.alias; else noAlias">
+            <img style="height: 1rem; margin-right: 0.25rem" src="../../../assets/img/{{ contact.value.alias.kind }}-logo.svg">
+            {{ contact.value.alias.value }} ({{ contact.value.name }})
+          </ng-container>
+          <ng-template #noAlias>
+            <img style="height: 1rem; margin-right: 0.5rem" src="../../../assets/img/tezos-xtz-logo.svg">
+            {{ contact.value.name }}
+          </ng-template>
+        </td>
+        <td>
+          {{ formatAddress(contact.value.address) }}
+        </td>
+        <td><img (click)="addressBookService.removeContact(contact.value.address)" src="../../../assets/img/cross.svg">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="seperator"></div>
+  <div class="contact-entry">
+    <div>
+      <input type="text" class="text" placeholder="Name" [(ngModel)]="name">
+      <select class="select-css" [(ngModel)]="torusVerifier">
+        <option value="" selected>Tezos Address</option>
+        <option *ngFor="let key of torusService.verifierMapKeys" value="{{key}}">
+          {{ torusService.verifierMap[key].name }} Account</option>
+      </select>
+    </div>
+    <div>
+      <input type="text" class="text" placeholder="{{ placeholder() }}" [(ngModel)]="address">
+    </div>
+    <div>
+      <img *ngIf="loading" src="../../../assets/img/feeLoader.gif" style="height: 1rem; margin-right: 1rem"><button
+        (click)="addContact()">Submit</button>
+    </div>
+  </div>
 </div>

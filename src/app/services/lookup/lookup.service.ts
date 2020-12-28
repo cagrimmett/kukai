@@ -3,15 +3,7 @@ import { OperationService } from '../../services/operation/operation.service';
 import { TorusService } from '../../services/torus/torus.service';
 import { WalletService } from '../../services/wallet/wallet.service';
 import { InputValidationService } from '../../services/input-validation/input-validation.service';
-
-enum LookupType { // ordered in priority
-  AddressBook,
-  TezosDomains,
-  Google,
-  Reddit,
-  Twitter,
-  Alias
-}
+import { LookupType } from '../../interfaces';
 
 @Injectable({
   providedIn: 'root'

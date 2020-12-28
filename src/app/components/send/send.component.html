@@ -1,6 +1,7 @@
 <ng-container *ngIf="!beaconMode">
   <button *ngIf="!tokenTransfer" class="purple open" (click)="openModal()">Send</button>
-  <span class="token-send" *ngIf="tokenTransfer && !tokenService.getAsset(tokenTransfer).nonTransferable" (click)="openModal()">Send</span>
+  <span class="token-send" *ngIf="tokenTransfer && !tokenService.getAsset(tokenTransfer).nonTransferable"
+    (click)="openModal()">Send</span>
 </ng-container>
 
 <!-- The Modal -->
@@ -12,7 +13,8 @@
       <H1 *ngIf="activeView === 0">Send {{ getAssetName(false) }}</H1>
       <H1 *ngIf="activeView === 1">Confirmation</H1>
       <!--<span class="close" (click)="modalOpen = false" class="close">&times;</span>-->
-      <button *ngIf="activeView === 0 && !(tokenTransfer || beaconMode)" class="small multiple-destinations" (click)="toggleDestination()">
+      <button *ngIf="activeView === 0 && !(tokenTransfer || beaconMode)" class="small multiple-destinations"
+        (click)="toggleDestination()">
         <ng-container *ngIf="!this.isMultipleDestinations">Multiple transactions</ng-container>
         <ng-container *ngIf="this.isMultipleDestinations">Single transaction</ng-container>
       </button>
@@ -24,7 +26,8 @@
           <input #amountInput class="input" class="custom-large" placeholder="0.00" [(ngModel)]="amount"
             (mousedown)="sendMax = false; default" [style.font-size.rem]="dynSize()" (input)="amountChange()"
             (keypress)="keyPressNumbersDecimal($event)" (change)="amountChange()"
-            [style.width.ch]="amount ? amount.length + 1 : 3.6" [disabled]="isMultipleDestinations || (beaconMode && operationRequest.operationDetails[0].amount)">
+            [style.width.ch]="amount ? amount.length + 1 : 3.6"
+            [disabled]="isMultipleDestinations || (beaconMode && operationRequest.operationDetails[0].amount)">
           <span class="tez">{{ getAssetName() }}</span>
         </ng-container>
         <ng-container *ngIf="hideAmount">
@@ -33,8 +36,8 @@
       </div>
       <div class="row-group">
         <span *ngIf="hideAmount"></span>
-        <button *ngIf="!(this.isMultipleDestinations || hideAmount || beaconMode)" tabindex=-1 class="small" [class.max]="sendMax"
-          (click)="sendEntireBalance($event)">Send Max</button>
+        <button *ngIf="!(this.isMultipleDestinations || hideAmount || beaconMode)" tabindex=-1 class="small"
+          [class.max]="sendMax" (click)="sendEntireBalance($event)">Send Max</button>
         <p *ngIf="this.isMultipleDestinations || beaconMode"></p>
         <p class="fee">
           <ng-container *ngIf="simSemaphore"><img src="../../../assets/img/feeLoader.gif">&nbsp;</ng-container>
@@ -49,24 +52,40 @@
       </div>
       <div *ngIf="!this.isMultipleDestinations" class="group">
         <label style="justify-content: space-between; opacity: 1; color: rgba(44, 50, 58, 0.4)"><span>Send to</span>
-          <select class="select-css" [(ngModel)]="torusVerifier" (ngModelChange)="verifierChange()" [disabled]="beaconMode">
-            <option value="" selected>Tezos Address</option>
-            <option *ngFor="let key of torusService.verifierMapKeys" value="{{key}}">
-              {{ torusService.verifierMap[key].name }} Account</option>
-          </select></label>
-        <input type="text" class="text" (input)="updateDefaultValues()" (change)="validateReceiverAddress()" [disabled]="beaconMode"
-          [(ngModel)]="toPkh">
+          <div>
+            <app-add-contact *ngIf="!beaconMode" [toPkh]="toPkh" [torusVerifier]="torusVerifier"
+              [torusLookupAddress]="torusLookupAddress" [torusLookupId]="torusLookupId"
+              [torusTwitterId]="torusTwitterId" [torusPendingLookup]="torusPendingLookup"></app-add-contact>
+            <select class="select-css" [(ngModel)]="torusVerifier" (ngModelChange)="verifierChange()"
+              [disabled]="beaconMode">
+              <option value="" selected>Tezos Address</option>
+              <option *ngFor="let key of torusService.verifierMapKeys" value="{{key}}">
+                {{ torusService.verifierMap[key].name }} Account</option>
+            </select>
+          </div>
+        </label>
+        <input type="text" class="text" (input)="updateDefaultValues()" (change)="validateReceiverAddress()"
+          [disabled]="beaconMode" [(ngModel)]="toPkh" list="contacts">
+        <datalist id="contacts">
+          <ng-container *ngFor="let contact of addressBook | keyvalue">
+            <option *ngIf="!this.torusVerifier" value="{{contact.value.address}}">{{contact.value.name}}<ng-container
+                *ngIf="contact.value.alias"> ({{contact.value.alias.value}})</ng-container>
+            </option>
+            <option *ngIf="this.torusVerifier && (this.torusVerifier === contact.value?.alias?.kind)"
+              value="{{contact.value.alias.value}}">{{contact.value.address}}</option>
+          </ng-container>
+        </datalist>
       </div>
       <div *ngIf="beaconMode && parameters">
         <label style="color: #C83532; margin-top: 1rem">
-        <ng-container *ngIf="!batchParameters.length">
-          This transaction will invoke a contract
-        </ng-container>
-        <ng-container *ngIf="batchParameters.length">
-          These transactions will invoke <ng-container *ngIf="batchParameters.length === 1">a contract</ng-container>
-          <ng-container *ngIf="batchParameters.length > 1">contracts</ng-container>
-        </ng-container>
-      </label>
+          <ng-container *ngIf="!batchParameters.length">
+            This transaction will invoke a contract
+          </ng-container>
+          <ng-container *ngIf="batchParameters.length">
+            These transactions will invoke <ng-container *ngIf="batchParameters.length === 1">a contract</ng-container>
+            <ng-container *ngIf="batchParameters.length > 1">contracts</ng-container>
+          </ng-container>
+        </label>
       </div>
       <ng-container *ngIf="torusVerifier">
         <p class="torus-details" *ngIf="torusPendingLookup">Loading address...</p>
@@ -95,7 +114,7 @@
           <div class="group">
             <label>Gas limit</label>
             <input type="text" class="text" placeholder={{this.defaultTransactionParams.gas.toString()}}
-            [class.read-only]="beaconMode && isMultipleDestinations" [readonly]="beaconMode && isMultipleDestinations"
+              [class.read-only]="beaconMode && isMultipleDestinations" [readonly]="beaconMode && isMultipleDestinations"
               [(ngModel)]="gas">
           </div>
           <div class="group">
@@ -107,8 +126,9 @@
         <div class="row-group">
           <div class="group">
             <label>Storage limit</label>
-            <input type="text" [class.read-only]="beaconMode && isMultipleDestinations" [readonly]="beaconMode && isMultipleDestinations" (input)="updateMaxAmount()" (paste)="updateMaxAmount()" class="text"
-              placeholder={{this.defaultTransactionParams.storage.toString()}} [(ngModel)]="storage">
+            <input type="text" [class.read-only]="beaconMode && isMultipleDestinations"
+              [readonly]="beaconMode && isMultipleDestinations" (input)="updateMaxAmount()" (paste)="updateMaxAmount()"
+              class="text" placeholder={{this.defaultTransactionParams.storage.toString()}} [(ngModel)]="storage">
           </div>
           <div class="group">
             <label>Max storage cost</label>
@@ -142,11 +162,28 @@
         </ng-template>
       </div>
       <ng-container *ngIf="!isMultipleDestinations">
-        <span *ngIf="torusLookupId" class="torus-to"><img src="../../../assets/img/{{ torusVerifier }}-logo.svg">
-          {{ torusLookupId }}</span>
+        <span *ngIf="addressBookService.getContact(transactions[0].to); else noContact; let contact" class="alias-to">
+          <ng-container *ngIf="contact.alias; else noAlias">
+            <img src="../../../assets/img/{{ contact.alias.kind }}-logo.svg"> {{ contact.alias.value }} ({{ contact.name
+            }})
+          </ng-container>
+          <ng-template #noAlias>
+            {{ contact.name }}
+          </ng-template>
+        </span>
+        <ng-template #noContact>
+          <span *ngIf="torusVerifier" class="alias-to">
+            <img src="../../../assets/img/{{ torusVerifier }}-logo.svg">
+            {{ torusLookupId }}
+          </span>
+        </ng-template>
+        <!--<span *ngIf="torusLookupId" class="alias-to">
+            <img src="../../../assets/img/{{ torusVerifier }}-logo.svg">
+            {{ torusLookupId }}</span>-->
         <span class="single-to">{{ transactions[0].to }}</span>
         <p id="previewAttention" *ngIf="torusLookupId">{{ previewAttention() }}</p>
-        <p id="previewAttention" *ngIf="tokenTransfer && transactions[0].to.slice(0, 3) === 'KT1'">Make sure the contract can manage tokens</p>
+        <p id="previewAttention" *ngIf="tokenTransfer && transactions[0].to.slice(0, 3) === 'KT1'">Make sure the
+          contract can manage tokens</p>
         <div class="seperator"></div>
       </ng-container>
       <ng-container *ngIf="isMultipleDestinations">
@@ -204,7 +241,9 @@
           <ul class="tabs">
             <ng-container *ngFor="let params of batchParameters; let i = index">
               <li class="tab" [class.active]="batchParamIndex === i" (click)="updateParameters(i, params.parameters)">
-                <ng-container *ngIf="batchParameters.length <= 3">Operation</ng-container><ng-container *ngIf="batchParameters.length > 3">Tx</ng-container> {{ params.num }}</li>
+                <ng-container *ngIf="batchParameters.length <= 3">Operation</ng-container>
+                <ng-container *ngIf="batchParameters.length > 3">Tx</ng-container> {{ params.num }}
+              </li>
             </ng-container>
           </ul>
         </div>
@@ -227,7 +266,8 @@
             <li class="tab" [class.active]="parametersFormat === 1" (click)="setParametersFormat(1)">JSON</li>
           </ul>
         </div>
-        <textarea *ngIf="parameters" style="width: 100%; font-size: 0.875rem" rows="10" readonly>{{ parametersTextboxDisplay() }}</textarea>
+        <textarea *ngIf="parameters" style="width: 100%; font-size: 0.875rem" rows="10"
+          readonly>{{ parametersTextboxDisplay() }}</textarea>
       </ng-container>
       <div class="row-group" style="margin: 1.25rem 0 1.5rem;">
         <input *ngIf="!walletService.isLedgerWallet() && !walletService.isTorusWallet()" [(ngModel)]="password"

@@ -118,3 +118,12 @@ export interface Constants {
   };
   ASSETS: Record<string, ContractType>;
 }
+
+export enum LookupType {
+  AddressBook,
+  TezosDomains,
+  Google,
+  Reddit,
+  Twitter,
+  Alias
+}

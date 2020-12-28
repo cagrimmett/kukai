@@ -1,0 +1,28 @@
+<img *ngIf="display()" (click)="open()" src="../../../../assets/img/add-contact-blue.svg">
+
+<div *ngIf="active" id="myModal" class="kukai-modal">
+  <div class="km-content">
+    <div class="x" (click)="close()"><img src="../../../assets/img/x.svg"></div>
+    <div class="km-header">
+      <H1>Address Book</H1>
+    </div>
+    <div class="km-body">
+      <span class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</span>
+      <div class="row-group">
+          <div class="group" [class.full-width]="!torusVerifier">
+          <label>Name</label>
+          <input type="text" class="text" [(ngModel)]="name" (input)="errorMsg = ''" autofocus>
+        </div>
+        <div class="group" *ngIf="torusVerifier">
+          <label>{{ getVerifierLabel() }}</label>
+          <input type="text" class="text" [(ngModel)]="aliasValue" readonly>
+        </div>
+      </div>
+      <div class="group">
+        <label>Address</label>
+        <input type="text" class="text" [(ngModel)]="address" style="font-size: 0.8125rem" readonly>
+      </div>
+      <button class="purple" (click)="add()">Add Contact</button>
+    </div>
+  </div>
+</div>
